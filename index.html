@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        section {
+            height: 100vh;
+            background-color:black;
+            font-family: sans-serif;
+        }
+        
+        .score {
+            color: red;
+            height: 20vh;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .score h1 {
+            font-size: 40px;
+        }
+        
+        .score p {
+            text-align: center;
+            padding: 10px;
+            font-size: 35px;
+			color: green;
+        }
+        
+        .intro {
+            height: 50vh;
+            color: rgb(224, 224, 224);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            transition: opacity 0.5s ease;
+        }
+        
+        .intro h1 {
+            font-size: 50px;
+			text-shadow:3px 4px 8px red;
+        }
+        
+        .intro button,
+        .match button {
+           width: 150px;
+            height: 50px;
+            background: none;
+            border-size: 8px;
+			border-style:outset;
+			border-color:red;
+			text-shadow:3px 2px 5px red;
+			border-radius:12px;
+            color: rgb(224, 224, 224);
+            font-size: 20px;
+            background: rgb(45, 117, 96);
+            cursor: pointer;
+        }
+        
+        .match {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.5s ease-in 0.5s;
+        }
+        
+        .winner {
+            text-align: center;
+            color: rgb(224, 224, 224);
+            font-size: 50px;
+        }
+        
+        .hands,
+        .options {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .player-hand {
+            transform: rotateY(180deg);
+        }
+        
+        div.fadeOut {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        div.fadeIn {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        @keyframes shakePlayer {
+            0% {
+                transform: rotateY(180deg) translateY(0px);
+            }
+            15% {
+                transform: rotateY(180deg) translateY(-50px);
+            }
+            25% {
+                transform: rotateY(180deg) translateY(0px);
+            }
+            35% {
+                transform: rotateY(180deg) translateY(-50px);
+            }
+            50% {
+                transform: rotateY(180deg) translateY(0px);
+            }
+            65% {
+                transform: rotateY(180deg) translateY(-50px);
+            }
+            75% {
+                transform: rotateY(180deg) translateY(0px);
+            }
+            85% {
+                transform: rotateY(180deg) translateY(-50px);
+            }
+            100% {
+                transform: rotateY(180deg) translateY(0px);
+            }
+        }
+        
+        @keyframes shakeComputer {
+            0% {
+                transform: translateY(0px);
+            }
+            15% {
+                transform: translateY(-50px);
+            }
+            25% {
+                transform: translateY(0px);
+            }
+            35% {
+                transform: translateY(-50px);
+            }
+            50% {
+                transform: translateY(0px);
+            }
+            65% {
+                transform: translateY(-50px);
+            }
+            75% {
+                transform: translateY(0px);
+            }
+            85% {
+                transform: translateY(-50px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+    </style>
+    <title>Game</title>
+</head>
+
+<body>
+    <section class="game">
+        <div class="score">
+            <div class="PlayerScore">
+                <h1>Player</h1>
+                <p>0</p>
+            </div>
+            <div class="ComputerScore">
+                <h1>Computer</h1>
+                <p>0</p>
+            </div>
+        </div>
+        <div class="intro">
+            <h1>Rock Paper and Scissors</h1>
+            <button>Let's play</button>
+        </div>
+        <div class="match fadeOut">
+            <h1 class="winner">Select an option</h1>
+            <div class="hands">
+                <img class="player-hand" src="rock.png">
+                <img class="Computer-hand" src="rock.png">
+            </div>
+            <div class="options">
+                <button class="rock">rock</button>
+                <button class="paper">paper</button>
+                <button class="scissors">scissors</button>
+            </div>
+        </div>
+
+    </section>
+    <script>
+        const game = () => {
+
+            let pscr = 0;
+            let cscr = 0;
+
+            //start the game 
+
+            const startGame = () => {
+                const playBtn = document.querySelector(".intro button");
+                const introScr = document.querySelector(".intro");
+                const match = document.querySelector(".match");
+                playBtn.addEventListener("click", () => {
+                    introScr.classList.add("fadeOut");
+                    match.classList.add("fadeIn");
+                });
+            };
+            //Play match
+            const playmat = () => {
+                const options = document.querySelectorAll(".options button");
+                const res = document.querySelector(".reset button")
+                const playerHnd = document.querySelector(".player-hand");
+                const computerHnd = document.querySelector(".Computer-hand");
+                const hands = document.querySelectorAll(".hands img");
+                hands.forEach(hand => {
+                    hand.addEventListener('animationend', function() {
+                        this.style.animation = "";
+                    });
+                });
+                //computer options
+                const comoptions = ['rock', 'paper', 'scissors'];
+                options.forEach(option => {
+                    option.addEventListener("click", function() {
+                        //computer choice
+                        const comNo = Math.floor(Math.random() * 3);
+                        const comCh = comoptions[comNo];
+                        setTimeout(() => {
+                            compereHands(this.textContent, comCh);
+                            playerHnd.src = `${this.textContent}.png`;
+                            computerHnd.src = `${comCh}.png`;
+                        }, 2000);
+                        //Animation
+                        playerHnd.style.animation = "shakePlayer 2s ease"
+                        computerHnd.style.animation = "shakeComputer 2s ease"
+                        const c = ['rock', 'paper', 'scissors'];
+                        const no = c[0];
+                        playerHnd.src = `${no}.png`;
+                        computerHnd.src = `${no}.png`
+                        const tax = document.querySelector(".winner")
+                        tax.textContent = "";
+                    });
+                });
+            };
+
+            const update = () => {
+                const pscore = document.querySelector(".PlayerScore p");
+                const cscore = document.querySelector(".ComputerScore p");
+                pscore.textContent = pscr;
+                cscore.textContent = cscr;
+            };
+
+            const compereHands = (playerCh, comCh) => {
+                    const winner = document.querySelector(".winner");
+                    //checking for tie
+                    if (playerCh === comCh) {
+                        winner.textContent = "It is a tie";
+                        return;
+                    }
+                    //Rock checking
+                    if (playerCh === "rock") {
+                        if (comCh === "scissors") {
+                            winner.textContent = "Player wins"
+                            pscr++;
+                            update();
+                            return;
+                        } else {
+                            winner.textContent = "Computer wins"
+                            cscr++;
+                            update();
+                            return;
+                        }
+                    }
+                    if (playerCh === "paper") {
+                        if (comCh === "scissors") {
+                            winner.textContent = "Computer wins";
+                            cscr++;
+                            update();
+                            return;
+                        } else {
+                            winner.textContent = "Player wins";
+                            pscr++;
+                            update();
+                            return;
+                        }
+                    }
+                    if (playerCh === "scissors") {
+                        if (comCh === "rock") {
+                            winner.textContent = "Computer wins";
+                            cscr++;
+                            update();
+                            return;
+                        } else {
+                            winner.textContent = "Player wins";
+                            pscr++;
+                            update();
+                            return;
+                        }
+                    }
+
+                    //checking for rock
+                }
+                //call all inner functions
+            startGame();
+            playmat();
+        };
+        //start game function
+        game();
+    </script>
+</body>
+
+</html>
